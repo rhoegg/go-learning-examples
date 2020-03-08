@@ -12,7 +12,7 @@ func TestTicTacToeFixture(t *testing.T) {
 
 type TicTacToeFixture struct {
 	*gunit.Fixture
-	normalBoard, giantBoard Board
+	normalBoard, giantBoard *Board
 }
 
 func (this *TicTacToeFixture) SetupBoards() {
@@ -39,8 +39,8 @@ func (this *TicTacToeFixture) TestEmptyBoardCellsAreEmpty() {
 }
 
 func (this *TicTacToeFixture) TestMoveXWorks() {
-	errNormal := this.normalBoard.MoveX(1, 2)
-	errGiant := this.giantBoard.MoveX(5, 6)
+	errNormal := this.normalBoard.X(1, 2)
+	errGiant := this.giantBoard.X(5, 6)
 	this.So(errNormal, should.BeNil)
 	this.So(this.normalBoard.Cell(1, 2), should.Equal, CellStateX)
 	this.So(errGiant, should.BeNil)
@@ -48,8 +48,11 @@ func (this *TicTacToeFixture) TestMoveXWorks() {
 }
 
 func (this *TicTacToeFixture) TestMoveOWorks() {
-	errNormal := this.normalBoard.MoveO(2, 1)
-	errGiant := this.giantBoard.MoveO(6, 5)
+	// X goes first
+	this.normalBoard.X(0, 0)
+	this.giantBoard.X(0, 0)
+	errNormal := this.normalBoard.O(2, 1)
+	errGiant := this.giantBoard.O(6, 5)
 	this.So(errNormal, should.BeNil)
 	this.So(this.normalBoard.Cell(2, 1), should.Equal, CellStateO)
 	this.So(errGiant, should.BeNil)
@@ -60,11 +63,20 @@ func (this *TicTacToeFixture) TestInvalidMoveGivesError() {
 	normalBoardNonsense := [][2]int{{-1, 1}, {1, -1}, {0, 3}, {3, 0}, {1000, 1000}}
 	giantBoardNonsense := [][2]int{{-1, 0}, {0, -1}, {0, 17}, {13, 0}, {1000, 1000}}
 	for _, testdata := range normalBoardNonsense {
-		err := this.normalBoard.MoveX(testdata[0], testdata[1])
+		err := this.normalBoard.X(testdata[0], testdata[1])
 		this.So(err, should.BeError, ImpossibleMove(3, 3))
 	}
 	for _, testdata := range giantBoardNonsense {
-		err := this.giantBoard.MoveO(testdata[0], testdata[1])
+		err := this.giantBoard.O(testdata[0], testdata[1])
 		this.So(err, should.BeError, ImpossibleMove(13, 17))
 	}
+}
+
+func (this *TicTacToeFixture) TestXGoesFirst() {
+	err := this.normalBoard.O(0, 0)
+	this.So(err, should.BeError, MoveOutOfTurn)
+	err = this.normalBoard.X(2, 2)
+	this.So(err, should.BeNil)
+	err = this.normalBoard.O(0, 0)
+	this.So(err, should.BeNil)
 }
