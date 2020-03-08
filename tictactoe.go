@@ -35,11 +35,19 @@ func (b Board) Cell(x, y int) CellState {
 }
 
 func (b Board) MoveX(x, y int) error {
+	v, ok := b.CheckPossibleMove(x, y)
+	if !ok {
+		return v
+	}
 	b[x][y] = CellStateX
 	return nil
 }
 
 func (b Board) MoveO(x, y int) error {
+	v, ok := b.CheckPossibleMove(x, y)
+	if !ok {
+		return v
+	}
 	b[x][y] = CellStateO
 	return nil
 }

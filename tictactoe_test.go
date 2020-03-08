@@ -55,3 +55,16 @@ func (this *TicTacToeFixture) TestMoveOWorks() {
 	this.So(errGiant, should.BeNil)
 	this.So(this.giantBoard.Cell(6, 5), should.Equal, CellStateO)
 }
+
+func (this *TicTacToeFixture) TestInvalidMoveGivesError() {
+	normalBoardNonsense := [][2]int{{-1, 1}, {1, -1}, {0, 3}, {3, 0}, {1000, 1000}}
+	giantBoardNonsense := [][2]int{{-1, 0}, {0, -1}, {0, 17}, {13, 0}, {1000, 1000}}
+	for _, testdata := range normalBoardNonsense {
+		err := this.normalBoard.MoveX(testdata[0], testdata[1])
+		this.So(err, should.BeError, ImpossibleMove(3, 3))
+	}
+	for _, testdata := range giantBoardNonsense {
+		err := this.giantBoard.MoveO(testdata[0], testdata[1])
+		this.So(err, should.BeError, ImpossibleMove(13, 17))
+	}
+}
