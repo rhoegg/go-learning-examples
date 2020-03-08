@@ -80,3 +80,14 @@ func (this *TicTacToeFixture) TestXGoesFirst() {
 	err = this.normalBoard.O(0, 0)
 	this.So(err, should.BeNil)
 }
+
+func (this *TicTacToeFixture) TestOneTurnAtATime() {
+	err := this.normalBoard.X(0, 0)
+	this.So(err, should.BeNil)
+	err = this.normalBoard.X(1, 1)
+	this.So(err, should.BeError, MoveOutOfTurn)
+	err = this.normalBoard.O(1, 1)
+	this.So(err, should.BeNil)
+	err = this.normalBoard.O(0, 2)
+	this.So(err, should.BeError, MoveOutOfTurn)
+}

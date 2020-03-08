@@ -38,3 +38,26 @@ func (b Board) CheckXGoesFirst(state CellState) Rule {
 		return NoProblem, true
 	}
 }
+
+func (b Board) CheckTakingTurns(state CellState) Rule {
+	var turnIsO bool = false
+	for i := 0; i < b.Rows(); i++ {
+		for j := 0; j < b.Cols(); j++ {
+			if b.Cell(i, j) != CellStateEmpty {
+				turnIsO = !turnIsO
+			}
+		}
+	}
+	return func() (RuleViolation, bool) {
+		if turnIsO {
+			if state == CellStateX {
+				return MoveOutOfTurn, false
+			}
+		} else {
+			if state == CellStateO {
+				return MoveOutOfTurn, false
+			}
+		}
+		return NoProblem, true
+	}
+}
