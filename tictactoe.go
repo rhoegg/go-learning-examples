@@ -49,7 +49,8 @@ func (b *Board) move(x, y int, move CellState) error {
 	rules := []Rule{
 		b.CheckMoveIsPossible(x, y),
 		b.CheckXGoesFirst(move),
-		b.CheckTakingTurns(move)}
+		b.CheckTakingTurns(move),
+		b.CheckUnoccupied(x, y)}
 
 	for _, rule := range rules {
 		v, ok := rule()
