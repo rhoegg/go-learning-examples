@@ -63,6 +63,11 @@ func (b Board) score(state CellState) bool {
 			return true
 		}
 	}
+	for _, a := range b.ascents() {
+		if contiguousCells(state, 3, a) {
+			return true
+		}
+	}
 	return false
 }
 
@@ -92,6 +97,20 @@ func (b Board) descents() [][]CellState {
 				descent = append(descent, b.Cell(i, j-1))
 			}
 			result = append(result, descent)
+		}
+	}
+	return result
+}
+
+func (b Board) ascents() [][]CellState {
+	var result [][]CellState
+	for x := 0; x < b.Width(); x++ {
+		for y := 0; y < b.Height(); y++ {
+			var ascent []CellState
+			for i, j := x, y; i < b.Width() && j < b.Height(); i, j = i+1, j+1 {
+				ascent = append(ascent, b.Cell(i, j))
+			}
+			result = append(result, ascent)
 		}
 	}
 	return result

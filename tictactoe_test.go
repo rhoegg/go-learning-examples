@@ -150,3 +150,14 @@ func (this *TicTacToeFixture) TestXWins_3x3_DescendingDiagonal() {
 	this.normalBoard.X(2, 0)
 	this.So(this.normalBoard.GameOutcome(), should.Equal, WonByX)
 }
+
+func (this *TicTacToeFixture) TestOWins_3x3_AscendingDiagonal() {
+	this.normalBoard.X(0, 2)
+	this.normalBoard.O(0, 0)
+	this.normalBoard.X(2, 0)
+	this.normalBoard.O(1, 1)
+	this.normalBoard.X(1, 2)
+	this.So(this.normalBoard.GameOutcome(), should.Equal, Undetermined)
+	this.normalBoard.O(2, 2)
+	this.So(this.normalBoard.GameOutcome(), should.Equal, WonByO)
+}
