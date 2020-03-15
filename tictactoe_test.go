@@ -98,3 +98,13 @@ func (this *TicTacToeFixture) TestMoveMustNotBeTaken() {
 	err = this.normalBoard.X(0, 0)
 	this.So(err, should.BeError, SpaceIsOccupied(0, 0))
 }
+
+func (this *TicTacToeFixture) TestXWins_3x3_Horizontally() {
+	this.normalBoard.X(0, 0)
+	this.normalBoard.O(1, 0)
+	this.normalBoard.X(0, 1)
+	this.normalBoard.O(1, 1)
+	this.So(this.normalBoard.GameOutcome(), should.Equal, Undetermined)
+	this.normalBoard.X(0, 2) // three in a row
+	this.So(this.normalBoard.GameOutcome(), should.Equal, WonByX)
+}
