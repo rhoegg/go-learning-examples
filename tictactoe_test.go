@@ -7,7 +7,7 @@ import (
 )
 
 func TestTicTacToeFixture(t *testing.T) {
-	gunit.Run(new(TicTacToeFixture), t)
+	gunit.RunSequential(new(TicTacToeFixture), t)
 }
 
 type TicTacToeFixture struct {
@@ -21,18 +21,18 @@ func (this *TicTacToeFixture) SetupBoards() {
 }
 
 func (this *TicTacToeFixture) TestBoardRows() {
-	this.So(this.normalBoard.Rows(), should.Equal, 3)
-	this.So(this.giantBoard.Rows(), should.Equal, 13)
+	this.So(this.normalBoard.Height(), should.Equal, 3)
+	this.So(this.giantBoard.Height(), should.Equal, 13)
 }
 
 func (this *TicTacToeFixture) TestBoardCols() {
-	this.So(this.normalBoard.Cols(), should.Equal, 3)
-	this.So(this.giantBoard.Cols(), should.Equal, 17)
+	this.So(this.normalBoard.Width(), should.Equal, 3)
+	this.So(this.giantBoard.Width(), should.Equal, 17)
 }
 
 func (this *TicTacToeFixture) TestEmptyBoardCellsAreEmpty() {
-	for r := 0; r < this.normalBoard.Rows(); r++ {
-		for c := 0; c < this.normalBoard.Cols(); c++ {
+	for r := 0; r < this.normalBoard.Height(); r++ {
+		for c := 0; c < this.normalBoard.Width(); c++ {
 			this.So(this.normalBoard.Cell(r, c), should.Equal, CellStateEmpty)
 		}
 	}
@@ -139,4 +139,14 @@ func (this *TicTacToeFixture) TestOWins_3x3_Vertically() {
 	this.So(this.normalBoard.GameOutcome(), should.Equal, Undetermined)
 	this.normalBoard.O(2, 0)
 	this.So(this.normalBoard.GameOutcome(), should.Equal, WonByO)
+}
+
+func (this *TicTacToeFixture) TestXWins_3x3_DescendingDiagonal() {
+	this.normalBoard.X(0, 2)
+	this.normalBoard.O(0, 0)
+	this.normalBoard.X(1, 1)
+	this.normalBoard.O(2, 2)
+	this.So(this.normalBoard.GameOutcome(), should.Equal, Undetermined)
+	this.normalBoard.X(2, 0)
+	this.So(this.normalBoard.GameOutcome(), should.Equal, WonByX)
 }

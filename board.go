@@ -17,11 +17,11 @@ func EmptyBoard(rows, cols int) *Board {
 	return &board
 }
 
-func (b Board) Rows() int {
+func (b Board) Height() int {
 	return len(b.cells)
 }
 
-func (b Board) Cols() int {
+func (b Board) Width() int {
 	return len(b.cells[0])
 }
 

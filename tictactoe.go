@@ -48,29 +48,53 @@ func (b Board) GameOutcome() GameOutcome {
 }
 
 func (b Board) score(state CellState) bool {
-	for y := 0; y < b.Rows(); y++ {
-		if contiguousCells(state, 3, b.row(y)) {
+	for _, r := range b.rows() {
+		if contiguousCells(state, 3, r) {
 			return true
 		}
 	}
-	for x := 0; x < b.Cols(); x++ {
-		if contiguousCells(state, 3, b.column(x)) {
+	for _, c := range b.columns() {
+		if contiguousCells(state, 3, c) {
+			return true
+		}
+	}
+	for _, d := range b.descents() {
+		if contiguousCells(state, 3, d) {
 			return true
 		}
 	}
 	return false
 }
 
-func (b Board) row(i int) []CellState {
-	return b.cells[i]
+func (b Board) rows() [][]CellState {
+	return b.cells
 }
 
-func (b Board) column(i int) []CellState {
-	var cells []CellState
-	for y := 0; y < b.Rows(); y++ {
-		cells = append(cells, b.Cell(i, y))
+func (b Board) columns() [][]CellState {
+	var result [][]CellState
+	for x := 0; x < b.Width(); x++ {
+		var cells []CellState
+		for y := 0; y < b.Height(); y++ {
+			cells = append(cells, b.Cell(x, y))
+		}
+		result = append(result, cells)
 	}
-	return cells
+	return result
+}
+
+func (b Board) descents() [][]CellState {
+	var result [][]CellState
+	for x := 0; x < b.Width(); x++ {
+		for y := b.Height(); y >= x; y-- {
+			// diagonal down to x
+			var descent []CellState
+			for i, j := x, y; i < y; i, j = i+1, j-1 {
+				descent = append(descent, b.Cell(i, j-1))
+			}
+			result = append(result, descent)
+		}
+	}
+	return result
 }
 
 func contiguousCells(state CellState, needed int, cells []CellState) bool {

@@ -25,10 +25,10 @@ func SpaceIsOccupied(x, y int) RuleViolation {
 func (b Board) CheckMoveIsPossible(x, y int) Rule {
 	return func() (RuleViolation, bool) {
 		if x < 0 || y < 0 {
-			return ImpossibleMove(b.Rows(), b.Cols()), false
+			return ImpossibleMove(b.Height(), b.Width()), false
 		}
-		if y >= b.Rows() || x >= b.Cols() {
-			return ImpossibleMove(b.Rows(), b.Cols()), false
+		if y >= b.Height() || x >= b.Width() {
+			return ImpossibleMove(b.Height(), b.Width()), false
 		}
 		return NoProblem, true
 	}
@@ -45,8 +45,8 @@ func (b Board) CheckXGoesFirst(state CellState) Rule {
 
 func (b Board) CheckTakingTurns(state CellState) Rule {
 	var turnIsO bool = false
-	for i := 0; i < b.Cols(); i++ {
-		for j := 0; j < b.Rows(); j++ {
+	for i := 0; i < b.Width(); i++ {
+		for j := 0; j < b.Height(); j++ {
 			if b.Cell(i, j) != CellStateEmpty {
 				turnIsO = !turnIsO
 			}
