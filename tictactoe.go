@@ -48,15 +48,32 @@ func (b Board) GameOutcome() GameOutcome {
 }
 
 func (b Board) score(state CellState) bool {
-	for _, row := range b.cells {
-		if contiguousCells(state, 3, row...) {
+	for y := 0; y < b.Rows(); y++ {
+		if contiguousCells(state, 3, b.row(y)) {
+			return true
+		}
+	}
+	for x := 0; x < b.Cols(); x++ {
+		if contiguousCells(state, 3, b.column(x)) {
 			return true
 		}
 	}
 	return false
 }
 
-func contiguousCells(state CellState, needed int, cells ...CellState) bool {
+func (b Board) row(i int) []CellState {
+	return b.cells[i]
+}
+
+func (b Board) column(i int) []CellState {
+	var cells []CellState
+	for y := 0; y < b.Rows(); y++ {
+		cells = append(cells, b.Cell(i, y))
+	}
+	return cells
+}
+
+func contiguousCells(state CellState, needed int, cells []CellState) bool {
 	if len(cells) < needed {
 		return false
 	}
@@ -64,11 +81,11 @@ func contiguousCells(state CellState, needed int, cells ...CellState) bool {
 		return true
 	}
 	if cells[0] != state {
-		return contiguousCells(state, needed, cells[1:]...)
+		return contiguousCells(state, needed, cells[1:])
 	}
 	for i := 0; i < needed; i++ {
 		if cells[i] != state {
-			return false // TODO: maybe recurse for the remainder of the row here?
+			return false // TODO: maybe recurse for the remainder of the cells here?
 		}
 	}
 	return true
