@@ -25,6 +25,7 @@ type GameOutcome int
 const (
 	Undetermined GameOutcome = iota
 	WonByX
+	WonByO
 )
 
 func (g GameOutcome) String() string {
@@ -40,6 +41,8 @@ func (g GameOutcome) String() string {
 func (b Board) GameOutcome() GameOutcome {
 	if b.score(CellStateX) {
 		return WonByX
+	} else if b.score(CellStateO) {
+		return WonByO
 	}
 	return Undetermined
 }
