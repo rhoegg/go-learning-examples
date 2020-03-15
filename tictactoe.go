@@ -24,12 +24,17 @@ type GameOutcome int
 
 const (
 	Undetermined GameOutcome = iota
+	Draw
 	WonByX
 	WonByO
 )
 
 func (g GameOutcome) String() string {
 	switch g {
+	case Draw:
+		return "Draw"
+	case WonByO:
+		return "O wins"
 	case WonByX:
 		return "X wins"
 	case Undetermined:
@@ -44,7 +49,14 @@ func (b Board) GameOutcome() GameOutcome {
 	} else if b.score(CellStateO) {
 		return WonByO
 	}
-	return Undetermined
+	for _, row := range b.rows() {
+		for _, cell := range row {
+			if cell == CellStateEmpty { // at least one available cell remains
+				return Undetermined
+			}
+		}
+	}
+	return Draw
 }
 
 func (b Board) score(state CellState) bool {

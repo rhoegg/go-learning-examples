@@ -161,3 +161,17 @@ func (this *TicTacToeFixture) TestOWins_3x3_AscendingDiagonal() {
 	this.normalBoard.O(2, 2)
 	this.So(this.normalBoard.GameOutcome(), should.Equal, WonByO)
 }
+
+func (this *TicTacToeFixture) TestDraw_3x3() {
+	this.normalBoard.X(0, 0)
+	this.normalBoard.O(1, 1)
+	this.normalBoard.X(2, 2)
+	this.normalBoard.O(0, 1)
+	this.normalBoard.X(2, 1) // block forced from here on
+	this.normalBoard.O(2, 0)
+	this.normalBoard.X(0, 2)
+	this.normalBoard.O(1, 2)
+	this.So(this.normalBoard.GameOutcome(), should.Equal, Undetermined)
+	this.normalBoard.X(1, 0)
+	this.So(this.normalBoard.GameOutcome(), should.Equal, Draw)
+}
