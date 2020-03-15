@@ -26,7 +26,7 @@ func (b Board) Cols() int {
 }
 
 func (b Board) Cell(x, y int) CellState {
-	return b.cells[x][y]
+	return b.cells[y][x]
 }
 
 func (b *Board) X(x, y int) error {
@@ -50,7 +50,7 @@ func (b *Board) move(x, y int, move CellState) error {
 			return v
 		}
 	}
-	b.cells[x][y] = move
+	b.cells[y][x] = move
 	b.inProgress = true
 	return nil
 }

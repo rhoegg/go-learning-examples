@@ -61,7 +61,7 @@ func (this *TicTacToeFixture) TestMoveOWorks() {
 
 func (this *TicTacToeFixture) TestInvalidMoveGivesError() {
 	normalBoardNonsense := [][2]int{{-1, 1}, {1, -1}, {0, 3}, {3, 0}, {1000, 1000}}
-	giantBoardNonsense := [][2]int{{-1, 0}, {0, -1}, {0, 17}, {13, 0}, {1000, 1000}}
+	giantBoardNonsense := [][2]int{{-1, 0}, {0, -1}, {17, 0}, {0, 13}, {1000, 1000}}
 	for _, testdata := range normalBoardNonsense {
 		err := this.normalBoard.X(testdata[0], testdata[1])
 		this.So(err, should.BeError, ImpossibleMove(3, 3))
@@ -90,7 +90,7 @@ func (this *TicTacToeFixture) TestOneTurnAtATime() {
 	this.So(err, should.BeError, MoveOutOfTurn)
 }
 
-func (this *TicTacToeFixture) TestMoveMustNotBeTaken() {
+func (this *TicTacToeFixture) TestMoveMustNotBOccupied() {
 	this.normalBoard.X(1, 1)
 	err := this.normalBoard.O(1, 1)
 	this.So(err, should.BeError, SpaceIsOccupied(1, 1))
@@ -101,10 +101,10 @@ func (this *TicTacToeFixture) TestMoveMustNotBeTaken() {
 
 func (this *TicTacToeFixture) TestXWins_3x3_Horizontally() {
 	this.normalBoard.X(0, 0)
-	this.normalBoard.O(1, 0)
-	this.normalBoard.X(0, 1)
-	this.normalBoard.O(1, 1)
+	this.normalBoard.O(0, 1)
+	this.normalBoard.X(1, 0)
+	this.normalBoard.O(0, 2)
 	this.So(this.normalBoard.GameOutcome(), should.Equal, Undetermined)
-	this.normalBoard.X(0, 2) // three in a row
+	this.normalBoard.X(2, 0) // three in a row
 	this.So(this.normalBoard.GameOutcome(), should.Equal, WonByX)
 }

@@ -27,7 +27,7 @@ func (b Board) CheckMoveIsPossible(x, y int) Rule {
 		if x < 0 || y < 0 {
 			return ImpossibleMove(b.Rows(), b.Cols()), false
 		}
-		if x >= b.Rows() || y >= b.Cols() {
+		if y >= b.Rows() || x >= b.Cols() {
 			return ImpossibleMove(b.Rows(), b.Cols()), false
 		}
 		return NoProblem, true
@@ -45,8 +45,8 @@ func (b Board) CheckXGoesFirst(state CellState) Rule {
 
 func (b Board) CheckTakingTurns(state CellState) Rule {
 	var turnIsO bool = false
-	for i := 0; i < b.Rows(); i++ {
-		for j := 0; j < b.Cols(); j++ {
+	for i := 0; i < b.Cols(); i++ {
+		for j := 0; j < b.Rows(); j++ {
 			if b.Cell(i, j) != CellStateEmpty {
 				turnIsO = !turnIsO
 			}
