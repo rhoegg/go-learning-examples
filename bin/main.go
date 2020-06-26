@@ -11,33 +11,27 @@ func main() {
 	b := learning_examples.EmptyBoard(3, 3)
 
 	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Printf("%v", b)
-	fmt.Print("Move: ")
-	scanner.Scan()
-	x, y, err := parseMove(scanner.Text())
-	if err != nil {
-		fmt.Printf("Error %v", err)
-		return
+	playerX := true
+	for {
+		fmt.Printf("%v", b)
+		fmt.Print("\nMove: ")
+		scanner.Scan()
+		x, y, err := parseMove(scanner.Text())
+		if err != nil {
+			fmt.Printf("Error %v", err)
+			return
+		}
+		if playerX {
+			err = b.X(x, y)
+		} else {
+			err = b.O(x, y)
+		}
+		if err != nil {
+			fmt.Printf("Error %v", err)
+			return
+		}
+		playerX = !playerX
 	}
-	err = b.X(x, y)
-	if err != nil {
-		fmt.Printf("Error %v", err)
-		return
-	}
-	fmt.Printf("%v", b)
-	fmt.Print("Move: ")
-	scanner.Scan()
-	x, y, err = parseMove(scanner.Text())
-	if err != nil {
-		fmt.Printf("Error %v", err)
-		return
-	}
-	err = b.O(x, y)
-	if err != nil {
-		fmt.Printf("Error %v", err)
-		return
-	}
-	fmt.Printf("%v", b)
 }
 
 func parseMove(text string) (int, int, error) {
