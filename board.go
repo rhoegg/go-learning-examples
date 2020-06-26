@@ -1,5 +1,9 @@
 package learning_examples
 
+import (
+	"strings"
+)
+
 type Board struct {
 	cells      [][]CellState
 	inProgress bool
@@ -27,6 +31,18 @@ func (b Board) Width() int {
 
 func (b Board) Cell(x, y int) CellState {
 	return b.cells[y][x]
+}
+
+func (b Board) String() string {
+	var lines []string
+	for _, row := range b.cells {
+		var rowstrings []string
+		for c := range row {
+			rowstrings = append(rowstrings, string(c))
+		}
+		lines = append(lines, strings.Join(rowstrings, " | "))
+	}
+	return strings.Join(lines, "\n---------\n")
 }
 
 func (b *Board) X(x, y int) error {

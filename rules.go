@@ -22,6 +22,14 @@ func SpaceIsOccupied(x, y int) RuleViolation {
 	return RuleViolation(fmt.Sprintf("Space is already taken (%d, %d)", x, y))
 }
 
+func OK() (RuleViolation, bool) {
+	return NoProblem, true
+}
+
+func (b Board) NextMove() CellState {
+	return CellStateX
+}
+
 func (b Board) CheckMoveIsPossible(x, y int) Rule {
 	return func() (RuleViolation, bool) {
 		if x < 0 || y < 0 {
@@ -30,7 +38,7 @@ func (b Board) CheckMoveIsPossible(x, y int) Rule {
 		if y >= b.Height() || x >= b.Width() {
 			return ImpossibleMove(b.Height(), b.Width()), false
 		}
-		return NoProblem, true
+		return OK()
 	}
 }
 
@@ -39,7 +47,7 @@ func (b Board) CheckXGoesFirst(state CellState) Rule {
 		if !b.inProgress && state == CellStateO {
 			return MoveOutOfTurn, false
 		}
-		return NoProblem, true
+		return OK()
 	}
 }
 
@@ -62,7 +70,7 @@ func (b Board) CheckTakingTurns(state CellState) Rule {
 				return MoveOutOfTurn, false
 			}
 		}
-		return NoProblem, true
+		return OK()
 	}
 }
 
@@ -71,6 +79,6 @@ func (b Board) CheckUnoccupied(x, y int) Rule {
 		if b.Cell(x, y) != CellStateEmpty {
 			return SpaceIsOccupied(x, y), false
 		}
-		return NoProblem, true
+		return OK()
 	}
 }

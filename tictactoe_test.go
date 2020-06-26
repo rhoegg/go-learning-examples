@@ -38,6 +38,10 @@ func (this *TicTacToeFixture) TestEmptyBoardCellsAreEmpty() {
 	}
 }
 
+func (this *TicTacToeFixture) TestNextMoveIsXWhenEmpty() {
+	this.So(this.normalBoard.NextMove(), should.Equal, CellStateX)
+}
+
 func (this *TicTacToeFixture) TestMoveXWorks() {
 	errNormal := this.normalBoard.X(1, 2)
 	errGiant := this.giantBoard.X(5, 6)
