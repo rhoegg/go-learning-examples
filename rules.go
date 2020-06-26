@@ -27,7 +27,19 @@ func OK() (RuleViolation, bool) {
 }
 
 func (b Board) NextMove() CellState {
-	return CellStateX
+	moves := 0
+	for _, row := range b.cells {
+		for _, cell := range row {
+			if cell != CellStateEmpty {
+				moves++
+			}
+		}
+	}
+	if moves%2 == 1 {
+		return CellStateO
+	} else {
+		return CellStateX
+	}
 }
 
 func (b Board) CheckMoveIsPossible(x, y int) Rule {

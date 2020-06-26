@@ -40,6 +40,18 @@ func (this *TicTacToeFixture) TestEmptyBoardCellsAreEmpty() {
 
 func (this *TicTacToeFixture) TestNextMoveIsXWhenEmpty() {
 	this.So(this.normalBoard.NextMove(), should.Equal, CellStateX)
+	this.So(this.giantBoard.NextMove(), should.Equal, CellStateX)
+}
+
+func (this *TicTacToeFixture) TestNextMoveChangesProperlyAfterMoves() {
+	this.normalBoard.X(0, 0)
+	this.giantBoard.X(0, 0)
+	this.So(this.normalBoard.NextMove(), should.Equal, CellStateO)
+	this.So(this.giantBoard.NextMove(), should.Equal, CellStateO)
+	this.normalBoard.O(0, 1)
+	this.giantBoard.O(0, 1)
+	this.So(this.normalBoard.NextMove(), should.Equal, CellStateX)
+	this.So(this.giantBoard.NextMove(), should.Equal, CellStateX)
 }
 
 func (this *TicTacToeFixture) TestMoveXWorks() {
