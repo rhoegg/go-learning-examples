@@ -37,12 +37,12 @@ func (b Board) String() string {
 	var lines []string
 	for _, row := range b.cells {
 		var rowstrings []string
-		for c := range row {
-			rowstrings = append(rowstrings, string(c))
+		for _, c := range row {
+			rowstrings = append(rowstrings, c.String())
 		}
 		lines = append(lines, strings.Join(rowstrings, " | "))
 	}
-	return strings.Join(lines, "\n---------\n")
+	return "\n" + strings.Join(lines, "\n---------\n")
 }
 
 func (b *Board) X(x, y int) error {
