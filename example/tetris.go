@@ -47,7 +47,7 @@ func main() {
 	var err error
 	gameState, err = getGameState()
 	if err != nil {
-		fmt.Printf("Error: %v")
+		fmt.Printf("Error: %v", err)
 		return
 	}
 	t := time.NewTicker(300 * time.Millisecond)
@@ -72,14 +72,14 @@ func update() error {
 		return err
 	case "Running":
 		action := getGameState
-		if pieceOnTopLine() {
-			if !quietPeriod {
+		if !quietPeriod {
+			if pieceOnTopLine() || pieceOnLine(1) {
 				quietPeriod = true
-				time.AfterFunc(1*time.Second, func() {
+				time.AfterFunc(500*time.Millisecond, func() {
 					quietPeriod = false
 				})
 
-				action = moveRandom
+				action = moveLowestThatFits
 			}
 		}
 		// if time to act,
@@ -88,6 +88,8 @@ func update() error {
 		var err error
 		gameState, err = action()
 		return err
+	case "Game Over":
+		return fmt.Errorf("game over with score %d", gameState.Score)
 	default:
 		return fmt.Errorf("unsupported status %s", gameState.Status)
 	}
@@ -110,6 +112,113 @@ func getGameState() (GameState, error) {
 	}
 	fmt.Printf("DEBUG: board\n%s\n", gameState.RawBoard)
 	return gameState, err
+}
+
+func moveLowestThatFits() (GameState, error) {
+	surface := map[int]int{}
+	var piece string
+	for r := len(gameState.BoardLines()) - 1; r >= 0; r-- { // bottom to top
+		for c := 0; c < len(gameState.BoardLines()[r]); c++ {
+			if c > 3 && c < 7 && r < 4 { // probably the active piece
+				if piece == "" && gameState.BoardLines()[r][c] != ' ' {
+					piece = string(gameState.BoardLines()[r][c])
+				}
+				continue
+			}
+			if gameState.BoardLines()[r][c] == ' ' {
+				if r == len(gameState.BoardLines())-1 { // bottom row
+					surface[c] = r + 1
+				}
+			} else {
+				surface[c] = r
+			}
+		}
+	}
+	const pos = 4
+	var targetPos, highestRowIndex int
+	rotation := ""
+	switch piece {
+	case "I": // just put at lowest point
+		for c := 0; c < len(surface); c++ {
+			if surface[c] > highestRowIndex {
+				targetPos = c
+				highestRowIndex = surface[c]
+			}
+		}
+	case "O": // lowest flat spot
+		flatSpots := []int{}
+		for c := 0; c < len(surface); c++ {
+			if c+1 < len(surface) && surface[c+1] == surface[c] {
+				flatSpots = append(flatSpots, c)
+			}
+		}
+		if len(flatSpots) == 0 {
+			// just slam it to the left
+			targetPos = 0
+		} else {
+			for _, c := range flatSpots {
+				if surface[c] > highestRowIndex {
+					targetPos = c
+					highestRowIndex = surface[c]
+				}
+			}
+		}
+	case "T":
+		for c := 0; c < len(surface); c++ {
+			if surface[c] > highestRowIndex {
+				targetPos = c
+				highestRowIndex = surface[c]
+			}
+		}
+		switch {
+		case targetPos == 0:
+			rotation = "/"
+		case targetPos == len(surface)-1:
+			rotation = "\\>"
+		default:
+			leftRowIndex, rightRowIndex := surface[targetPos-1], surface[targetPos+1]
+			switch {
+			case leftRowIndex < rightRowIndex:
+				fmt.Printf("Rotating right for target position %d\n", targetPos)
+				rotation = "/"
+			case rightRowIndex < leftRowIndex:
+				fmt.Printf("Rotating left for target position %d\n", targetPos)
+				rotation = "\\<"
+			default: // they match
+				if leftRowIndex != targetPos {
+					fmt.Printf("Flipping for target position %d\n", targetPos)
+					rotation = "//<"
+				} // otherwise, they are all the same and we should leave the bottom flat
+			}
+		}
+	}
+	var action string
+	if targetPos < pos {
+		time.Sleep(500 * time.Millisecond)
+		for i := pos; i > targetPos; i-- {
+			action = action + "<"
+		}
+	} else {
+		time.Sleep(500 * time.Millisecond)
+		for i := pos; i < targetPos; i++ {
+			action = action + ">"
+		}
+	}
+	action = rotation + action
+	return act(action + "_")
+}
+
+var oMove = 0
+
+func moveO() (GameState, error) {
+	moves := []string{"<<<<", "<<", "", ">>", ">>>>"}
+	move := moves[oMove]
+	oMove = (oMove + 1) % 5
+	return act(move)
+}
+
+func drop() (GameState, error) {
+	return act("_")
 }
 
 func moveRandom() (GameState, error) {
@@ -139,15 +248,16 @@ func act(action string) (GameState, error) {
 	}
 	bodyBytes, _ := ioutil.ReadAll(resp.Body)
 	_ = resp.Body.Close()
-	bodyString := string(bodyBytes)
-	fmt.Println("DEBUG: \n", bodyString)
 
 	err = json.Unmarshal(bodyBytes, &gameState)
 	return gameState, err
 }
 
 func pieceOnTopLine() bool {
-	topLine := gameState.BoardLines()[0]
+	return pieceOnLine(0)
+}
+func pieceOnLine(i int) bool {
+	topLine := gameState.BoardLines()[i]
 	for _, b := range topLine {
 		if b != ' ' {
 			return true
