@@ -115,28 +115,10 @@ func getGameState() (GameState, error) {
 }
 
 func moveLowestThatFits() (GameState, error) {
-	surface := map[int]int{}
-	var piece string
-	for r := len(gameState.BoardLines()) - 1; r >= 0; r-- { // bottom to top
-		for c := 0; c < len(gameState.BoardLines()[r]); c++ {
-			if c > 3 && c < 7 && r < 4 { // probably the active piece
-				if piece == "" && gameState.BoardLines()[r][c] != ' ' {
-					piece = string(gameState.BoardLines()[r][c])
-				}
-				continue
-			}
-			if gameState.BoardLines()[r][c] == ' ' {
-				if r == len(gameState.BoardLines())-1 { // bottom row
-					surface[c] = r + 1
-				}
-			} else {
-				surface[c] = r
-			}
-		}
-	}
+	piece, surface := readBoard()
 	const pos = 4
 	var targetPos, highestRowIndex int
-	rotation := ""
+	adjustment := ""
 	switch piece {
 	case "I": // just put at lowest point
 		for c := 0; c < len(surface); c++ {
@@ -145,6 +127,13 @@ func moveLowestThatFits() (GameState, error) {
 				highestRowIndex = surface[c]
 			}
 		}
+		var candidates []int
+		for c := range surface {
+			if surface[c] == surface[targetPos] {
+				candidates = append(candidates, c)
+			}
+		}
+		targetPos = candidates[rand.Intn(len(candidates))]
 	case "O": // lowest flat spot
 		flatSpots := []int{}
 		for c := 0; c < len(surface); c++ {
@@ -170,27 +159,105 @@ func moveLowestThatFits() (GameState, error) {
 				highestRowIndex = surface[c]
 			}
 		}
+		var candidates []int
+		for c := range surface {
+			if surface[c] == surface[targetPos] {
+				candidates = append(candidates, c)
+			}
+		}
+		targetPos = candidates[rand.Intn(len(candidates))]
 		switch {
 		case targetPos == 0:
-			rotation = "/"
+			adjustment = "/"
 		case targetPos == len(surface)-1:
-			rotation = "\\>"
+			adjustment = "\\>"
 		default:
 			leftRowIndex, rightRowIndex := surface[targetPos-1], surface[targetPos+1]
 			switch {
 			case leftRowIndex < rightRowIndex:
-				fmt.Printf("Rotating right for target position %d\n", targetPos)
-				rotation = "/"
+				adjustment = "/"
 			case rightRowIndex < leftRowIndex:
-				fmt.Printf("Rotating left for target position %d\n", targetPos)
-				rotation = "\\<"
+				adjustment = "\\<"
 			default: // they match
-				if leftRowIndex != targetPos {
-					fmt.Printf("Flipping for target position %d\n", targetPos)
-					rotation = "//<"
-				} // otherwise, they are all the same and we should leave the bottom flat
+				if leftRowIndex != highestRowIndex {
+					adjustment = "//"
+				} else {
+					// otherwise, they are all the same and we should leave the bottom flat
+				}
+				adjustment = adjustment + "<"
 			}
 		}
+	case "L":
+		candidates := map[int][]string{}
+		for c := 0; c < len(surface); c++ {
+			if c < len(surface)-2 &&
+				surface[c]-1 == surface[c+1] &&
+				surface[c]-1 == surface[c+2] {
+				candidates[c] = append(candidates[c], "//")
+			} else if c > 0 &&
+				surface[c]-surface[c-1] > 1 {
+				candidates[c] = append(candidates[c], "\\<")
+			} else if c < len(surface)-1 &&
+				surface[c] == surface[c+1] {
+				candidates[c] = append(candidates[c], "/")
+			} else if c < len(surface)-2 &&
+				surface[c] == surface[c+1] &&
+				surface[c] == surface[c+2] {
+				candidates[c] = append(candidates[c], "")
+			}
+		}
+		if len(candidates) > 0 {
+			for c := range candidates {
+				if surface[c] > highestRowIndex {
+					highestRowIndex = surface[c]
+				}
+			}
+			var finalists []int
+			for c := range candidates {
+				if surface[c] == highestRowIndex {
+					finalists = append(finalists, c)
+				}
+			}
+			fmt.Printf("L Finalists %v", finalists)
+			targetPos = finalists[rand.Intn(len(finalists))]
+			adjustment = candidates[targetPos][rand.Intn(len(candidates[targetPos]))]
+		}
+	case "J":
+		candidates := map[int][]string{}
+		for c := 0; c < len(surface); c++ {
+			if c < len(surface)-2 &&
+				surface[c] == surface[c+1] &&
+				surface[c]+1 == surface[c+2] {
+				candidates[c] = append(candidates[c], "//")
+			} else if c > 0 &&
+				surface[c]-surface[c+1] > 1 {
+				candidates[c] = append(candidates[c], "/")
+			} else if c < len(surface)-1 &&
+				surface[c] == surface[c+1] {
+				candidates[c] = append(candidates[c], "\\")
+			} else if c < len(surface)-2 &&
+				surface[c] == surface[c+1] &&
+				surface[c] == surface[c+2] {
+				candidates[c] = append(candidates[c], "")
+			}
+		}
+		if len(candidates) > 0 {
+			for c := range candidates {
+				if surface[c] > highestRowIndex {
+					highestRowIndex = surface[c]
+				}
+			}
+			var finalists []int
+			for c := range candidates {
+				if surface[c] == highestRowIndex {
+					finalists = append(finalists, c)
+				}
+			}
+			fmt.Printf("J Finalists %v", finalists)
+			targetPos = finalists[rand.Intn(len(finalists))]
+			adjustment = candidates[targetPos][rand.Intn(len(candidates[targetPos]))]
+		}
+
 	}
 	var action string
 	if targetPos < pos {
@@ -204,8 +271,31 @@ func moveLowestThatFits() (GameState, error) {
 			action = action + ">"
 		}
 	}
-	action = rotation + action
-	return act(action + "_")
+	action = adjustment + action
+	return act(action + "^")
+}
+
+func readBoard() (string, map[int]int) {
+	surface := map[int]int{}
+	var piece string
+	for r := len(gameState.BoardLines()) - 1; r >= 0; r-- { // bottom to top
+		for c := 0; c < len(gameState.BoardLines()[r]); c++ {
+			if c > 3 && c < 7 && r < 4 { // probably the active piece
+				if piece == "" && gameState.BoardLines()[r][c] != ' ' {
+					piece = string(gameState.BoardLines()[r][c])
+				}
+				continue
+			}
+			if gameState.BoardLines()[r][c] == ' ' {
+				if r == len(gameState.BoardLines())-1 { // bottom row
+					surface[c] = r + 1
+				}
+			} else {
+				surface[c] = r
+			}
+		}
+	}
+	return piece, surface
 }
 
 var oMove = 0
