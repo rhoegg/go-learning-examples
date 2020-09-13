@@ -34,33 +34,59 @@ func (gs GameState) BoardLines() [][]byte {
 }
 
 var apiEndpoint string
+var runSlowly bool
 
 func main() {
-	args := os.Args[1:]
-	if len(args) == 0 {
-		fmt.Printf("Usage: %s <API endpoint>", os.Args[0])
+	err := parseArgs()
+	if err != nil {
+		fmt.Printf("%v\n", err)
 		return
 	}
 
-	apiEndpoint = os.Args[1]
-
-	var err error
 	gameState, err = getGameState()
 	if err != nil {
-		fmt.Printf("Error: %v", err)
+		fmt.Printf("Error: %v\n", err)
 		return
 	}
-	t := time.NewTicker(300 * time.Millisecond)
+	tickSpeed := 300 * time.Millisecond
+	if runSlowly {
+		tickSpeed = 2 * time.Second
+	}
+	t := time.NewTicker(tickSpeed)
 	for {
 		select {
 		case <-t.C:
 			err := update()
 			if err != nil {
-				fmt.Printf("Error: %v", err)
+				fmt.Printf("Error: %v\n", err)
 				return
 			}
 		}
 	}
+}
+
+func parseArgs() error {
+	args := os.Args[1:]
+	if len(args) == 0 {
+		return fmt.Errorf("Usage: %s [switches] <API endpoint>", os.Args[0])
+	}
+
+	for len(args) >= 2 {
+		if strings.HasPrefix(args[0], "--") {
+			switch args[0][2:] {
+			case "slow":
+				runSlowly = true
+			default:
+				return fmt.Errorf("Unsupported switch %s", args[0])
+			}
+		} else {
+			return fmt.Errorf("Unsupported argument %s", args[0])
+		}
+		args = args[1:]
+	}
+
+	apiEndpoint = args[0]
+	return nil
 }
 
 func update() error {
@@ -272,7 +298,10 @@ func moveLowestThatFits() (GameState, error) {
 		}
 	}
 	action = adjustment + action
-	return act(action + "^")
+	if !runSlowly {
+		action += "^"
+	}
+	return act(action)
 }
 
 func readBoard() (string, map[int]int) {
