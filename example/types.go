@@ -5,7 +5,7 @@ import "strings"
 type Action func() (GameState, error)
 
 type GameState struct {
-	Status   string `json:"status"`
+	State    string `json:"state"`
 	Score    int    `json:"score"`
 	Bot      string `json:"bot"`
 	Next     string `json:"next"`

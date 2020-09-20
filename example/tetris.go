@@ -30,7 +30,7 @@ func main() {
 	}
 	tickSpeed := 300 * time.Millisecond
 	if runSlowly {
-		tickSpeed = 2 * time.Second
+		tickSpeed = 750 * time.Millisecond
 	}
 	t := time.NewTicker(tickSpeed)
 	for {
@@ -70,23 +70,30 @@ func parseArgs() error {
 }
 
 func update() error {
-	switch gameState.Status {
+	if quietPeriod {
+		var err error
+		gameState, err = getGameState()
+		return err
+	}
+	switch gameState.State {
 	case "Not Started":
 		fmt.Println("Game is not started. Starting...")
 		var err error
 		gameState, err = act("S")
+		quietPeriod = true
+		time.AfterFunc(1*time.Second, func() {
+			quietPeriod = false
+		})
 		return err
 	case "Running":
 		action := getGameState
-		if !quietPeriod {
-			if pieceOnTopLine() || pieceOnLine(1) {
-				quietPeriod = true
-				time.AfterFunc(500*time.Millisecond, func() {
-					quietPeriod = false
-				})
+		if pieceOnTopLine() || pieceOnLine(1) {
+			quietPeriod = true
+			time.AfterFunc(1*time.Second, func() {
+				quietPeriod = false
+			})
 
-				action = moveLowestThatFits
-			}
+			action = moveLowestThatFits
 		}
 		// if time to act,
 		//	choose action and send it
@@ -97,7 +104,7 @@ func update() error {
 	case "Game Over":
 		return fmt.Errorf("game over with score %d", gameState.Score)
 	default:
-		return fmt.Errorf("unsupported status %s", gameState.Status)
+		return fmt.Errorf("unsupported status %s", gameState.State)
 	}
 }
 
@@ -267,18 +274,18 @@ func moveLowestThatFits() (GameState, error) {
 	}
 	var action string
 	if targetPos < pos {
-		time.Sleep(500 * time.Millisecond)
 		for i := pos; i > targetPos; i-- {
 			action = action + "<"
 		}
 	} else {
-		time.Sleep(500 * time.Millisecond)
 		for i := pos; i < targetPos; i++ {
 			action = action + ">"
 		}
 	}
 	action = adjustment + action
-	if !runSlowly {
+	if runSlowly {
+		action += "__"
+	} else {
 		action += "^"
 	}
 	return act(action)
@@ -289,7 +296,7 @@ func readBoard() (string, map[int]int) {
 	var piece string
 	for r := len(gameState.BoardLines()) - 1; r >= 0; r-- { // bottom to top
 		for c := 0; c < len(gameState.BoardLines()[r]); c++ {
-			if c > 3 && c < 7 && r < 4 { // probably the active piece
+			if c > 3 && c < 7 && r < 5 { // probably the active piece
 				if piece == "" && gameState.BoardLines()[r][c] != ' ' {
 					piece = string(gameState.BoardLines()[r][c])
 				}
