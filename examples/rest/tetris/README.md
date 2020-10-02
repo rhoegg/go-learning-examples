@@ -8,11 +8,11 @@ Manual strategy for O, I, T, L, and J pieces. No support for S, Z pieces.
 ### Switches
 - `--slow` Makes the bot run slowly, good for watching the game run live
 ## Using go
-In the `example` directory:
+In the `tetris` directory:
 
 `go run ./... [switches] <API Endpoint>`
 ## Using docker
-In the `example` directory:
+In the `tetris` directory:
 
 `docker build -t tetris-bot .`
 

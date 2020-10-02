@@ -1,4 +1,4 @@
-module github.com/learning-examples/example
+module github.com/learning-examples/examples/rest/tetris
 
 go 1.14
 
