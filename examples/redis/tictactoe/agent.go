@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	tictactoe "github.com/ai-battleground/codemelee/client/tictactoe/redis"
 	"math/rand"
 	"time"
 )
@@ -17,7 +18,7 @@ func NewAgent(config Config) *Agent {
 	}
 }
 
-func (a *Agent) Act(o Observation) string {
+func (a *Agent) Act(o tictactoe.Observation) string {
 	if !o.MyTurn {
 		return ""
 	}

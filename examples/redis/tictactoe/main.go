@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	tictactoe "github.com/ai-battleground/codemelee/client/tictactoe/redis"
 	"math"
 	"strings"
 	"time"
@@ -12,7 +13,7 @@ const logTimeFormat = "2006-01-02 15:04:05.999"
 
 func main() {
 	config := parseArgs()
-	driver, err := NewDriver(config.RedisUrl)
+	driver, err := tictactoe.NewDriver(config.RedisUrl)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -44,7 +45,7 @@ func main() {
 		if o.State == "Done" {
 			break
 		}
-		time.Sleep(300 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 	}
 }
 
@@ -69,7 +70,7 @@ func parseArgs() Config {
 	}
 }
 
-func waitForMatch(driver Driver, bot, challenge string) string {
+func waitForMatch(driver tictactoe.Driver, bot, challenge string) string {
 	// loop confirm
 	fmt.Printf("Bot %s waiting for match...\n", bot)
 	ticker := time.NewTicker(3 * time.Second)
@@ -91,7 +92,7 @@ func waitForMatch(driver Driver, bot, challenge string) string {
 	}
 
 }
-func display(o Observation) {
+func display(o tictactoe.Observation) {
 	rows := [3]string{}
 	X, O := 0, 0
 	for _, b := range o.Boards {
