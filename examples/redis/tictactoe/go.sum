@@ -1,5 +1,5 @@
-github.com/ai-battleground/codemelee/client/tictactoe/redis v0.0.0 h1:c6twpdTLAiYjGCzKDPQHe4rDD7mDIKgByo89DgEJxZQ=
-github.com/ai-battleground/codemelee/client/tictactoe/redis v0.0.0/go.mod h1:nIWFX4R2rLgY6jE1XHtUEP26AiFpwx/oBtVFuMuLJNw=
+github.com/ai-battleground/codemelee/client/tictactoe/redis v0.2.0 h1:0/yTzV0yaf/qFx+svZh/NWUotcNtB1/9hA41LQhKjd4=
+github.com/ai-battleground/codemelee/client/tictactoe/redis v0.2.0/go.mod h1:nIWFX4R2rLgY6jE1XHtUEP26AiFpwx/oBtVFuMuLJNw=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/mediocregopher/radix/v3 v3.5.2 h1:A9u3G7n4+fWmDZ2ZDHtlK+cZl4q55T+7RjKjR0/MAdk=

@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	tictactoe "github.com/ai-battleground/codemelee/client/tictactoe/redis"
-	"math"
 	"strings"
 	"time"
 )
@@ -45,7 +44,7 @@ func main() {
 		if o.State == "Done" {
 			break
 		}
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(600 * time.Millisecond)
 	}
 }
 
@@ -86,7 +85,7 @@ func waitForMatch(driver tictactoe.Driver, bot, challenge string) string {
 			}
 			fmt.Printf("%s no match found for %s\n", time.Now().Format(logTimeFormat), challenge)
 		case <-timeout.C:
-			fmt.Printf("Giving up")
+			fmt.Printf("Giving up\n")
 			return ""
 		}
 	}
@@ -94,22 +93,10 @@ func waitForMatch(driver tictactoe.Driver, bot, challenge string) string {
 }
 func display(o tictactoe.Observation) {
 	rows := [3]string{}
-	X, O := 0, 0
 	for _, b := range o.Boards {
-		for _, s := range b {
-			switch s {
-			case 'X':
-				X++
-			case 'Y':
-				O++
-			}
-		}
-		if math.Abs(float64(X-O)) > 1 {
-			fmt.Println("Out of whack")
-		}
-		rows[0] += " " + string(b[0:3])
-		rows[1] += " " + string(b[3:6])
-		rows[2] += " " + string(b[6:9])
+		rows[0] += " | " + string(b[0:3])
+		rows[1] += " | " + string(b[3:6])
+		rows[2] += " | " + string(b[6:9])
 	}
 	fmt.Println(strings.Join(rows[:], "\n"))
 	fmt.Printf("%s: %d / %s: %d\n", o.Bot, o.Score, o.Opponent, o.OpponentScore)

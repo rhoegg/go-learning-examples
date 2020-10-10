@@ -4,6 +4,7 @@ import (
 	"fmt"
 	tictactoe "github.com/ai-battleground/codemelee/client/tictactoe/redis"
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -20,6 +21,7 @@ func NewAgent(config Config) *Agent {
 
 func (a *Agent) Act(o tictactoe.Observation) string {
 	if !o.MyTurn {
+		fmt.Printf("Not my turn %v\n", o.MyTurn)
 		return ""
 	}
 	actions := ""
@@ -40,6 +42,6 @@ func (a *Agent) Act(o tictactoe.Observation) string {
 	for _, b := range o.Boards {
 		tmp = append(tmp, string(b))
 	}
-	//fmt.Printf("%s My turn: %s: %s\n", time.Now().Format(logTimeFormat), strings.Join(tmp, " "), actions)
+	fmt.Printf("%s My turn: %s: %s\n", time.Now().Format(logTimeFormat), strings.Join(tmp, " "), actions)
 	return actions
 }
