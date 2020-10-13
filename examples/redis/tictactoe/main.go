@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const logTimeFormat = "2006-01-02 15:04:05.999"
+const logTimeFormat = "2006-01-02 15:04:05.000"
 
 func main() {
 	config := parseArgs()
@@ -44,7 +44,7 @@ func main() {
 		if o.State == "Done" {
 			break
 		}
-		time.Sleep(600 * time.Millisecond)
+		time.Sleep(40 * time.Millisecond)
 	}
 }
 
@@ -71,9 +71,9 @@ func parseArgs() Config {
 
 func waitForMatch(driver tictactoe.Driver, bot, challenge string) string {
 	// loop confirm
-	fmt.Printf("Bot %s waiting for match...\n", bot)
-	ticker := time.NewTicker(3 * time.Second)
-	timeout := time.NewTimer(2 * time.Minute)
+	fmt.Printf("%s Bot %s waiting for match...\n", time.Now().Format(logTimeFormat), bot)
+	ticker := time.NewTicker(5 * time.Second)
+	timeout := time.NewTimer(1 * time.Minute)
 	var game string
 	for {
 		select {
@@ -94,9 +94,11 @@ func waitForMatch(driver tictactoe.Driver, bot, challenge string) string {
 func display(o tictactoe.Observation) {
 	rows := [3]string{}
 	for _, b := range o.Boards {
-		rows[0] += " | " + string(b[0:3])
-		rows[1] += " | " + string(b[3:6])
-		rows[2] += " | " + string(b[6:9])
+		if len(b) == 9 {
+			rows[0] += " | " + string(b[0:3])
+			rows[1] += " | " + string(b[3:6])
+			rows[2] += " | " + string(b[6:9])
+		}
 	}
 	fmt.Println(strings.Join(rows[:], "\n"))
 	fmt.Printf("%s: %d / %s: %d\n", o.Bot, o.Score, o.Opponent, o.OpponentScore)
